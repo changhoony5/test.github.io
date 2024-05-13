@@ -12,6 +12,6 @@ function performHttpGet(unityInstance){
             .catch(error => {
                 unityInstance.SendMessage('JSCommunicationManager', 'ErrorFetchingData', error.toString());
             });
-    }, 3000);
+    }, 1000);
 }
 // 외부에서 HttpManager.PerformHttpGet() 메서드를 호출하여 사용할 수 있습니다.
