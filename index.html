@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="ko">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -12,6 +12,10 @@
            color: white; /* 글씨 색상을 하얀색으로 설정 */
         }
       </style>
+    <script src="js/updateUI.js"></script>
+    <script src="js/performHttpGet.js"></script>
+    <script src="js/loadData.js"></script>
+    <script src="js/sendMessageToUnity.js"></script>
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
@@ -26,10 +30,6 @@
             document.getElementById('addressInput').readOnly = false;
             });
       </script>
-    <script src="js/updateUI.js"></script>
-    <script src="js/performHttpGet.js"></script>
-    <script src="js/loadData.js"></script>
-    <script src="js/sendMessageToUnity.js"></script>
       <button id="unity-fullscreen-button" onclick="toggleFullscreen()"></button>
       <canvas id="unity-canvas"></canvas>
       <div id="unity-loading-bar">
@@ -39,20 +39,19 @@
       </div>
       <div id="unity-warning"> </div>
     </div>    
-  <script src="Build/Side_Responsive.loader.js">
+  <script>
       var unityInstance = UnityLoader.instantiate("unity-container", "Build/Side_Responsive.loader.js", {
           onProgress: UnityProgress
       });
-          document.addEventListener('DOMContentLoaded', function() {
-          document.getElementById('addressInput').readOnly = false;
 
+      document.addEventListener('DOMContentLoaded', function() {
           document.getElementById('httpHttpGetButton').addEventListener('click', function() {
-          performHttpGet(unityInstance);
-      });
+              performHttpGet(unityInstance);
+          });
 
           document.getElementById('loadDataButton').addEventListener('click', function() {
-          loadData(unityInstance);
-      });
+              loadData(unityInstance);
+          });
       });
     </script>
     <script>
