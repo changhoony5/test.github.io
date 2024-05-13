@@ -38,51 +38,7 @@
         </div>
       </div>
       <div id="unity-warning"> </div>
-    </div>    
-  <script>
-      var unityInstance = UnityLoader.instantiate("unity-container", "Build/Side_Responsive.loader.js", {
-          onProgress: UnityProgress
-      });
-
-      document.addEventListener('DOMContentLoaded', function() {
-          document.getElementById('httpHttpGetButton').addEventListener('click', function() {
-              performHttpGet(unityInstance);
-          });
-
-          document.getElementById('loadDataButton').addEventListener('click', function() {
-              loadData(unityInstance);
-          });
-      });
-      
-    function performHttpGet(unityInstance){
-    var address = document.getElementById('addressInput').value;
-    setTimeout(function () {
-        unityInstance.SendMessage('JSCommunicationManager', 'ReceiveMessage', 'Hello World');
-        fetch(address)
-            .then(response => response.text())
-            .then(data => {
-                updateUI(data);
-                unityInstance.SendMessage('JSCommunicationManager', 'ReceiveDataFromHttpGet', data);
-            })
-            .catch(error => {
-                unityInstance.SendMessage('JSCommunicationManager', 'ErrorFetchingData', error.toString());
-            });
-    }, 1000);
-}
-    function loadData(unityInstance) {
-    var request = indexedDB.open("UnityDB", 1);
-    request.onsuccess = function(event) {
-        var db = event.target.result;
-        var transaction = db.transaction(["dates"], "readonly");
-        var objectStore = transaction.objectStore("dates");
-        var allRecords = objectStore.getAll();
-        allRecords.onsuccess = function() {
-            var allData = JSON.stringify(allRecords.result);
-            unityInstance.SendMessage('JSCommunicationManager', 'ReceiveDataFromJS', allData);
-        };
-    };
-}
-    </script>
+    </div>
     <script>
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
@@ -182,6 +138,15 @@
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
+      
+          document.getElementById('httpHttpGetButton').addEventListener('click', function() {
+              performHttpGet(unityInstance);
+          });
+
+          document.getElementById('loadDataButton').addEventListener('click', function() {
+              loadData(unityInstance);
+          });
+      
           loadingBar.style.display = "none";
 
           // If you want to warn the player before they close the tab,
