@@ -71,11 +71,11 @@ function confirmUnload(event) {
 }
 
 var buildUrl = "Build";
-var loaderUrl = buildUrl + "/SideProject.loader.js";
+var loaderUrl = buildUrl + "/Side_Responsive.loader.js";
 var config = {
-    dataUrl: buildUrl + "/SideProject.data.unityweb",
-    frameworkUrl: buildUrl + "/SideProject.framework.js.unityweb",
-    codeUrl: buildUrl + "/SideProject.wasm.unityweb",
+    dataUrl: buildUrl + "/Side_Responsive.data.unityweb",
+    frameworkUrl: buildUrl + "/Side_Responsive.framework.js.unityweb",
+    codeUrl: buildUrl + "/Side_Responsive.wasm.unityweb",
     streamingAssetsUrl: "StreamingAssets",
     companyName: "Digitalpharm Co., Ltd.",
 productName: "ToyProject",
