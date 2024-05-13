@@ -53,6 +53,35 @@
               loadData(unityInstance);
           });
       });
+      
+    function performHttpGet(unityInstance){
+    var address = document.getElementById('addressInput').value;
+    setTimeout(function () {
+        unityInstance.SendMessage('JSCommunicationManager', 'ReceiveMessage', 'Hello World');
+        fetch(address)
+            .then(response => response.text())
+            .then(data => {
+                updateUI(data);
+                unityInstance.SendMessage('JSCommunicationManager', 'ReceiveDataFromHttpGet', data);
+            })
+            .catch(error => {
+                unityInstance.SendMessage('JSCommunicationManager', 'ErrorFetchingData', error.toString());
+            });
+    }, 1000);
+}
+    function loadData(unityInstance) {
+    var request = indexedDB.open("UnityDB", 1);
+    request.onsuccess = function(event) {
+        var db = event.target.result;
+        var transaction = db.transaction(["dates"], "readonly");
+        var objectStore = transaction.objectStore("dates");
+        var allRecords = objectStore.getAll();
+        allRecords.onsuccess = function() {
+            var allData = JSON.stringify(allRecords.result);
+            unityInstance.SendMessage('JSCommunicationManager', 'ReceiveDataFromJS', allData);
+        };
+    };
+}
     </script>
     <script>
       var container = document.querySelector("#unity-container");
