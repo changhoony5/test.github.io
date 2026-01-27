@@ -161,6 +161,16 @@
   };
 
   document.body.appendChild(script);
+
+  // C# -> JS 브릿지: Unity 로그가 막혀도 브라우저 콘솔로 직접 출력하기
+  // (Assets/Plugins/WebMediator.js + C# DllImport("__Internal")에서 호출)
+  function WebGLConsoleLog(message) {
+    try {
+      console.log('[C#]', message);
+    } catch (e) {
+      // ignore
+    }
+  }
 </script>
 </body>
 </html>
