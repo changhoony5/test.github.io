@@ -1,0 +1,31 @@
+{
+  "project_info": {
+    "project_number": "923658113474",
+    "project_id": "dp-dtx-003",
+    "storage_bucket": "dp-dtx-003.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:923658113474:ios:24b0cf21ac7eb5cc29865b",
+        "android_client_info": {
+          "package_name": "kr.co.ariacare.smacare"
+        }
+      },
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYfDMqbfVaW4wB5JI6_PwN9Sb3IdQyYMg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 0
+        },
+        "appinvite_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

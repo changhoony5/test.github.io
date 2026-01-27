@@ -1,166 +1,166 @@
 <!DOCTYPE html>
-<html lang="ko">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>ToyProject</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-      <style>
-        #label {
-           color: white; /* 글씨 색상을 하얀색으로 설정 */
-        }
-      </style>
-    <script src="js/updateUI.js"></script>
-    <script src="js/performHttpGet.js"></script>
-    <script src="js/loadData.js"></script>
-    <script src="js/sendMessageToUnity.js"></script>
-  </head>
-  <body>
-    <div id="unity-container" class="unity-desktop">
-       <div><button id="httpHttpGetButton">Send HTTP Request</button></div>
-       <div><button id="loadDataButton">Load Data</button></div>
-      <div>
-        <label id="label">Waiting for data...</label>
-      </div>
-      <div><input type="text" id="addressInput" placeholder="Enter URL here"></div>
-      <script>
-            document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('addressInput').readOnly = false;
-            });
-      </script>
-      <button id="unity-fullscreen-button" onclick="toggleFullscreen()"></button>
-      <canvas id="unity-canvas"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>스마케어</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+</head>
+
+<body>
+<div id="unity-container" class="unity-desktop">
+  <!-- 핵심: tabindex를 0으로 (첫 터치에서 캔버스가 포커스를 못 잡는 경우 완화) -->
+  <canvas id="unity-canvas" tabindex="0"></canvas>
+
+  <div id="unity-loading-bar">
+    <div id="unity-progress-bar-empty">
+      <div id="unity-progress-bar-full"></div>
     </div>
-    <script>
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+  </div>
 
-      function isFullscreen()
-      {
-        return document.fullscreenElement !== null && document.fullscreenElement
-                || document.webkitFullscreenElement !== null && document.webkitFullscreenElement
-                || document.msFullscreenElement !== null && document.msFullscreenElement;
-      }
+  <div id="unity-warning"> </div>
+</div>
 
-      function rebuildFullscreenGUI()
-      {
-        if (isFullscreen()) {
-          document.getElementById("unity-fullscreen-button").style.backgroundImage="url('TemplateData/fullscreen-button-in.png')";
-        }
-        else {
-          document.getElementById("unity-fullscreen-button").style.backgroundImage="url('TemplateData/fullscreen-button-out.png')";
-        }
-      }
+<!-- iOS 키보드 언락용: 숨은 input (최초 1회만 focus했다가 blur) -->
+<input id="kb-unlock" type="text"
+       style="position:fixed; left:-9999px; top:-9999px; opacity:0; width:1px; height:1px;" />
 
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
+<script>
+  const container = document.querySelector("#unity-container");
+  const canvas = document.querySelector("#unity-canvas");
+  const loadingBar = document.querySelector("#unity-loading-bar");
+  const progressBarFull = document.querySelector("#unity-progress-bar-full");
+  const warningBanner = document.querySelector("#unity-warning");
+
+  // UX: 포커스 링 제거
+  canvas.style.outline = "none";
+
+  // 모바일에서 터치 제스처가 스크롤/줌으로 해석되며 입력이 씹히는 케이스 완화
+  // (필요 없으면 지워도 됨)
+  canvas.style.touchAction = "none";
+
+  function unityShowBanner(msg, type) {
+    function updateBannerVisibility() {
+      warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+    }
+    var div = document.createElement('div');
+    div.innerHTML = msg;
+    warningBanner.appendChild(div);
+    if (type === 'error') div.style = 'background: red; padding: 10px;';
+    else {
+      if (type === 'warning') div.style = 'background: yellow; padding: 10px;';
+      setTimeout(function() {
+        warningBanner.removeChild(div);
         updateBannerVisibility();
-      }
-      function toggleFullscreen() {
-        var element = document.getElementById("unity-container");
-        if (element.classList.contains('fullscreen')) {
-          // 전체 화면 모드 해제
-          element.classList.remove('fullscreen');
-        } else {
-          // 전체 화면 모드 설정
-          element.classList.add('fullscreen');
-        }
-      }
-      function confirmUnload(event) {
-        return confirm("All unsaved progress will be lost.");
-      }
+      }, 5000);
+    }
+    updateBannerVisibility();
+  }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Side_Responsive.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/Side_Responsive.data.unityweb",
-        frameworkUrl: buildUrl + "/Side_Responsive.framework.js.unityweb",
-        codeUrl: buildUrl + "/Side_Responsive.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Digitalpharm Co., Ltd.",
-        productName: "ToyProject",
-        productVersion: "1.0",
-        showBanner: unityShowBanner,
-      };
+  function confirmUnload(event) {
+    return confirm("All unsaved progress will be lost.");
+  }
 
-      // By default Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      //config.matchWebGLToCanvasSize = false;
+  // iOS/iPadOS 판별 (iPadOS는 "Macintosh" + touch가 섞여 잡히는 경우가 있어 보강)
+  function isIOSFamily() {
+    const ua = navigator.userAgent || "";
+    const isClassicIOS = /iPad|iPhone|iPod/i.test(ua);
+    const isIPadOS13Plus = (ua.includes("Macintosh") && navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
+    return isClassicIOS || isIPadOS13Plus;
+  }
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        container.className = "unity-mobile";
+  // 캔버스 포커스 강제 (Unity 입력 처리보다 먼저 잡아야 함)
+  function focusCanvas() {
+    try { canvas.focus({ preventScroll: true }); }
+    catch (e) { try { canvas.focus(); } catch (e2) {} }
+  }
 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        //config.devicePixelRatio = 1;
+  // iOS에서 “첫 제스처로 실제 input focus”가 안 걸리면 키보드가 안 뜨는 케이스가 있어서 1회 언락
+  let keyboardUnlocked = false;
+  function unlockKeyboardOnce() {
+    if (keyboardUnlocked) return;
+    keyboardUnlocked = true;
 
-        unityShowBanner('WebGL builds are not supported on mobile devices.');
-      }
+    if (!isIOSFamily()) return;
 
-      loadingBar.style.display = "block";
+    const kb = document.getElementById("kb-unlock");
+    if (!kb) return;
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstance) => {
-      
-          document.getElementById('httpHttpGetButton').addEventListener('click', function() {
-              performHttpGet(unityInstance);
-          });
+    try { kb.focus(); } catch (e) {}
+    setTimeout(() => { try { kb.blur(); } catch (e2) {} }, 0);
+  }
 
-          document.getElementById('loadDataButton').addEventListener('click', function() {
-              loadData(unityInstance);
-          });
-      
-          loadingBar.style.display = "none";
+  // 핵심: capture:true 로 "Unity 클릭 처리보다 먼저" 포커스/언락을 실행
+  canvas.addEventListener("pointerdown", (e) => {
+    unlockKeyboardOnce();
+    focusCanvas();
+  }, { capture: true });
 
-          // If you want to warn the player before they close the tab,
-          // uncomment the following:
-          //window.onbeforeunload = confirmUnload;
-        }).catch((message) => {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
+  canvas.addEventListener("touchstart", (e) => {
+    unlockKeyboardOnce();
+    focusCanvas();
+  }, { capture: true });
 
-      document.onfullscreenchange = rebuildFullscreenGUI;
+  var buildUrl = "Build";
+  var loaderUrl = buildUrl + "/webgl.loader.js";
+  var config = {
+    dataUrl: buildUrl + "/webgl.data.unityweb",
+    frameworkUrl: buildUrl + "/webgl.framework.js.unityweb",
+    codeUrl: buildUrl + "/webgl.wasm.unityweb",
+    streamingAssetsUrl: "StreamingAssets",
+    companyName: "DigitalPharm",
+    productName: "스마케어",
+    productVersion: "4.2.51",
+    // showBanner: unityShowBanner,
+  };
 
-    </script>
+  if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    var meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+    document.getElementsByTagName('head')[0].appendChild(meta);
+    container.className = "unity-mobile";
+  } else {
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+  }
 
-  </body>
+  loadingBar.style.display = "block";
+  loadingBar.style.pointerEvents = "auto";
+
+  // 로딩 오버레이가 터치 먹는 사고 방지
+  const loadingFailsafeMs = 20000;
+  const loadingFailsafe = setTimeout(() => {
+    loadingBar.style.display = "none";
+    loadingBar.style.pointerEvents = "none";
+  }, loadingFailsafeMs);
+
+  var script = document.createElement("script");
+  script.src = loaderUrl;
+
+  script.onload = () => {
+    createUnityInstance(canvas, config, (progress) => {
+      progressBarFull.style.width = 100 * progress + "%";
+    }).then((unityInstance) => {
+      clearTimeout(loadingFailsafe);
+      loadingBar.style.display = "none";
+      loadingBar.style.pointerEvents = "none";
+
+      // 초기 1회 포커스
+      focusCanvas();
+
+      // 필요 시: Unity가 HTML input 키 이벤트를 못 받게 하는 옵션이 기본값으로 존재함.
+      // 우리가 dummy input을 "키보드 트리거"로만 쓰는 거라 보통 문제 없지만,
+      // HTML input을 적극 활용할 계획이면 WebGLInput.captureAllKeyboardInput 관련을 검토해야 함.  [oai_citation:4‡Unity Manual](https://docs.unity3d.com/6000.2/Documentation/ScriptReference/WebGLInput-captureAllKeyboardInput.html?utm_source=chatgpt.com)
+
+      // window.onbeforeunload = confirmUnload;
+    }).catch((message) => {
+      alert(message);
+    });
+  };
+
+  document.body.appendChild(script);
+</script>
+</body>
 </html>
