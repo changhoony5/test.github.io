@@ -103,11 +103,12 @@
   }, { capture: true });
 
   var buildUrl = "Build";
-  var loaderUrl = buildUrl + "/webgl.loader.js";
+  var buildName = "test.github.io";
+  var loaderUrl = buildUrl + `/${buildName}.loader.js`;
   var config = {
-    dataUrl: buildUrl + "/webgl.data.unityweb",
-    frameworkUrl: buildUrl + "/webgl.framework.js.unityweb",
-    codeUrl: buildUrl + "/webgl.wasm.unityweb",
+    dataUrl: buildUrl + `/${buildName}.data.unityweb`,
+    frameworkUrl: buildUrl + `/${buildName}.framework.js.unityweb`,
+    codeUrl: buildUrl + `/${buildName}.wasm.unityweb`,
     streamingAssetsUrl: "StreamingAssets",
     companyName: "DigitalPharm",
     productName: "스마케어",
